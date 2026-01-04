@@ -1,0 +1,169 @@
+version: '3.8'
+
+services:
+  # Infrastructure
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - "5675:5672"
+      - "15675:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6380:6379"
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: math-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  auth-service:
+    build: ./services/auth-service
+    environment:
+      - MONGO_URI=mongodb+srv://bilashbiswas51_db_user:s0szn0Zr59nmJpwO@cluster0.kwfu3yb.mongodb.net/auth-db?retryWrites=true&w=majority
+      - JWT_KEY=secret
+    ports:
+      - "3001:3001"
+
+  chat-service:
+    build: ./services/chat-service
+    depends_on:
+      - rabbitmq
+      - redis
+    environment:
+      - MONGO_URI=mongodb+srv://bilashbiswas51_db_user:s0szn0Zr59nmJpwO@cluster0.kwfu3yb.mongodb.net/chat-db?retryWrites=true&w=majority
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "3002:3002"
+
+  interview-service:
+    build: ./services/interview-service
+    environment:
+      - MONGO_URI=mongodb+srv://bilashbiswas51_db_user:s0szn0Zr59nmJpwO@cluster0.kwfu3yb.mongodb.net/interview-db?retryWrites=true&w=majority
+    ports:
+      - "3003:3003"
+
+  notification-service:
+    build: ./services/notification-service
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+      - SOCKET_PORT=3008
+    ports:
+      - "3008:3008"
+
+  analytics-service:
+    build: ./services/analytics-service
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+      - MONGO_URI=mongodb+srv://bilashbiswas51_db_user:s0szn0Zr59nmJpwO@cluster0.kwfu3yb.mongodb.net/analytics-db?retryWrites=true&w=majority
+
+  code-execution-service:
+    build: ./services/code-execution-service
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+
+  quiz-service:
+    build: ./services/quiz-service
+    depends_on:
+      - redis
+    environment:
+      - MONGO_URI=mongodb+srv://bilashbiswas51_db_user:s0szn0Zr59nmJpwO@cluster0.kwfu3yb.mongodb.net/quiz-db?retryWrites=true&w=majority
+      - REDIS_URL=redis://redis:6379
+      - PORT=3005
+    ports:
+      - "3005:3005"
+
+  exam-service:
+    build: ./services/exam-service
+    depends_on:
+      - rabbitmq
+    environment:
+      - MONGO_URI=mongodb+srv://bilashbiswas51_db_user:s0szn0Zr59nmJpwO@cluster0.kwfu3yb.mongodb.net/exam-db?retryWrites=true&w=majority
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+      - QUIZ_SERVICE_INTERNAL_URL=http://quiz-service:3005/api/quiz
+      - PORT=3006
+    ports:
+      - "3006:3006"
+
+  social-service:
+    build: ./services/social-service
+    environment:
+      - MONGO_URI=mongodb+srv://bilashbiswas51_db_user:s0szn0Zr59nmJpwO@cluster0.kwfu3yb.mongodb.net/social-db?retryWrites=true&w=majority
+      - PORT=3007
+    ports:
+      - "3007:3007"
+
+  math-service:
+    build: ./services/math-service
+    depends_on:
+      - postgres
+    environment:
+      - POSTGRES_URL=postgresql://user:password@postgres:5432/math-db
+      - PORT=3009
+    ports:
+      - "3009:3009"
+
+  ai-service:
+    build: ./services/ai-service
+    ports:
+      - "3010:3010"
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=dev_secret
+
+  api-gateway:
+    image: nginx:alpine
+    depends_on:
+      - auth-service
+      - chat-service
+      - interview-service
+      - code-execution-service
+      - quiz-service
+      - exam-service
+      - math-service
+      - ai-service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./services/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+
+  web:
+    build:
+      context: ./apps/web
+      args:
+        - NEXT_PUBLIC_API_URL=http://192.168.10.235:8000/api
+        - NEXT_PUBLIC_SOCKET_URL=http://192.168.10.235:8000
+        - NEXT_PUBLIC_QUIZ_SOCKET_URL=http://192.168.10.235:8000
+        - NEXT_PUBLIC_SOCIAL_SOCKET_URL=http://192.168.10.235:8000
+        - NEXT_PUBLIC_NOTIFICATION_SOCKET_URL=http://192.168.10.235:3008
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://192.168.10.235:8000/api
+      - NEXT_PUBLIC_SOCKET_URL=http://192.168.10.235:8000
+      - NEXT_PUBLIC_QUIZ_SOCKET_URL=http://192.168.10.235:8000
+      - NEXT_PUBLIC_SOCIAL_SOCKET_URL=http://192.168.10.235:8000
+      - NEXT_PUBLIC_NOTIFICATION_SOCKET_URL=http://192.168.10.235:3008
+    depends_on:
+      - api-gateway
+
+volumes:
+  rabbitmq_data:
+  postgres_data:

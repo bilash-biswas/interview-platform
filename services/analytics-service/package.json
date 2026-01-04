@@ -1,0 +1,22 @@
+{
+  "name": "analytics-service",
+  "version": "1.0.0",
+  "description": "Analytics Service for Interview Platform",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "dotenv": "^16.3.1",
+    "mongoose": "^8.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "ts-node-dev": "^2.0.0",
+    "@types/node": "^20.9.0",
+    "@types/amqplib": "^0.10.1"
+  }
+}

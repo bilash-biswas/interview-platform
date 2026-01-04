@@ -1,0 +1,38 @@
+# Git
+.git
+.gitignore
+
+# Dependencies (Install in container)
+node_modules
+npm-debug.log
+yarn-error.log
+venv
+.venv
+__pycache__
+
+# Build outputs
+dist
+build
+.next
+out
+.expo
+web-build
+
+# Environment variables (Use build-args or runtime env)
+.env
+.env.*
+*.env
+
+# IDEs
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+README.md
+docs/
