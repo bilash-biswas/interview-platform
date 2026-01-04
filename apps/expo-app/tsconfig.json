@@ -1,0 +1,21 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
+  },
+  "include": [
+    "app",
+    "components",
+    "constants",
+    "hooks",
+    "redux",
+    "assets",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ]
+}

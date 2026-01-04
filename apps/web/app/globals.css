@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+:root {
+  /* Light Mode Variables */
+  --background: #ffffff;
+  --foreground: #171717;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --border-color: rgba(0, 0, 0, 0.1);
+  --accent-blue: #0070F3;
+  --accent-purple: #7928CA;
+  --accent-orange: #FF4D4D;
+  --glass-blur: 12px;
+}
+
+.dark {
+  /* Arena Dark Mode Variables */
+  --background: #0B0E14;
+  --foreground: #FFFFFF;
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --accent-blue: #00D1FF;
+  --accent-purple: #BC00FF;
+  --accent-orange: #FF9E00;
+  --glass-blur: 20px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card-bg);
+  --color-border-arena: var(--border-color);
+  --color-arena-blue: var(--accent-blue);
+  --color-arena-purple: var(--accent-purple);
+  --color-arena-orange: var(--accent-orange);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: var(--card-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--border-color);
+}
+
+.glow-blue {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.glow-purple {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+}
+
+.text-glow {
+  text-shadow: 0 0 10px currentColor;
+}
+
+/* Customized Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+  opacity: 0.2;
+}
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.arena-scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  background: linear-gradient(to bottom, transparent, var(--accent-blue), transparent);
+  opacity: 0.05;
+  pointer-events: none;
+  animation: scanline 8s linear infinite;
+  z-index: 50;
+}
+
+/* Interaction Utilities */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px) scale(1.02);
+}
+
+.button-glow:hover {
+  box-shadow: 0 0 25px currentColor;
+}
+
+/* Typography Enhancements */
+.tracking-tightest {
+  letter-spacing: -0.05em;
+}
+
+.vertical-text {
+  writing-mode: vertical-rl;
+}
+
+/* Mobile Responsiveness Helpers */
+@media (max-width: 768px) {
+  .glass-panel {
+    backdrop-filter: blur(8px);
+  }
+}
